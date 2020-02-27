@@ -22,7 +22,7 @@ body {
   max-width: 400px;
 }
 
-#login-iframe {
+.login-iframe {
   width: 780px;
   height: 500px;
   border: none;

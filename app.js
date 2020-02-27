@@ -1,37 +1,37 @@
 const express = require('express');
-const path = require("path");
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
-const successRouter = require("./routes/loginSuccess");
+const path = require('path');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const successRouter = require('./routes/loginSuccess');
 const expressSesssion = require('express-session');
 const passport = require('passport');
-const { Issuer, Strategy } = require("openid-client");
+const { Issuer, Strategy } = require('openid-client');
 
 const port = 3000;
 const app = express();
 
 let id_token;
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 app.use('/', indexRouter);
 
 // setup openid-client
-Issuer.discover("https://goran-demo-app-test.criipto.id")
+Issuer.discover('https://nodejs-sample.criipto.id')
   .then(criiptoIssuer => {
     const client = new criiptoIssuer.Client({
-      client_id: "urn:criipto:nodejs:demo:1",
-      client_secret: "HDiFZogKeOHjfzf9cG0GusNJTawymEjSg5Y1MC5CQ5s=",
-      redirect_uris: [ "http://localhost:3000/auth/callback" ],
-      post_logout_redirect_uris: [ "http://localhost:3000/logout/callback" ],
-      token_endpoint_auth_method: "client_secret_post"
+      client_id: 'urn:criipto:nodejs:demo:1010',
+      client_secret: 'j9wYVyD3zXZPMo3LTq/xSU/sMu9/shiFKpTHKfqAutM=',
+      redirect_uris: [ 'http://localhost:3000/auth/callback' ],
+      post_logout_redirect_uris: [ 'http://localhost:3000/logout/callback' ],
+      token_endpoint_auth_method: 'client_secret_post'
     });
 
     app.use(
       expressSesssion({
-        secret: "Some secret you say?",
+        secret: 'Some secret you say?',
         resave: false,
         saveUninitialized: true
       })
@@ -40,7 +40,7 @@ Issuer.discover("https://goran-demo-app-test.criipto.id")
     app.use(passport.session());
 
     passport.use(
-      "oidc",
+      'oidc',
       new Strategy({ client }, (tokenSet, userinfo, done) => {
         id_token = tokenSet.id_token;
         return done(null, tokenSet.claims());
@@ -56,16 +56,16 @@ Issuer.discover("https://goran-demo-app-test.criipto.id")
     });
 
     // start authentication request
-    app.get("/auth", (req, res, next) => {
+    app.get('/auth', (req, res, next) => {
       let loginMethod = req.query.loginmethod;
-      passport.authenticate("oidc", { acr_values: loginMethod })(req, res, next);
+      passport.authenticate('oidc', { acr_values: loginMethod })(req, res, next);
     });
 
     // authentication callback
-    app.get("/auth/callback", (req, res, next) => {
-      passport.authenticate("oidc", {
-        successRedirect: "/success",
-        failureRedirect: "/error"
+    app.get('/auth/callback', (req, res, next) => {
+      passport.authenticate('oidc', {
+        successRedirect: '/success',
+        failureRedirect: '/error'
       })(req, res, next);
     });
 
@@ -79,7 +79,7 @@ Issuer.discover("https://goran-demo-app-test.criipto.id")
     // handles what happens after successful login
     app.use('/success', successRouter);
     // user details protected route
-    app.use("/users", usersRouter);
+    app.use('/users', usersRouter);
 
     // start logout request
     app.get('/logout', (req, res) => {
